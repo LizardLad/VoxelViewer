@@ -53,3 +53,8 @@ make -j4
 mkdir shaders
 
 cp ../src/shaders/*.glsl shaders/
+
+
+Run:
+
+./VoxelVeiwer
