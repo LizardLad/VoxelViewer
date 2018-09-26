@@ -122,7 +122,7 @@ void mouse_motion(SDL_MouseMotionEvent *ev)
 
 void mouse_wheel(SDL_MouseWheelEvent *ev)
 {
-	if(keys & ~64)
+	if((keys & ~64) && SDL_GetRelativeMouseMode() == SDL_TRUE)
 	{
 		if(ev->y)
 		{
@@ -140,7 +140,7 @@ void mouse_wheel(SDL_MouseWheelEvent *ev)
 
 void mouse_button_down(SDL_MouseButtonEvent *ev)
 {
-	if(keys & ~64)
+	if((keys & ~64) && SDL_GetRelativeMouseMode() == SDL_TRUE)
 	{
 		fprintf(stderr, "Clicked on %d, %d, %d, face %d, button %d\n", mx, my, mz, face, ev->button);
 
