@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
 	if (!init_resources())
 		return EXIT_FAILURE;
 
-	keys |= ~64;
+	keys &= ~64;
 	context_init_finished = 1;
 
 	mainLoop(window);
