@@ -30,17 +30,17 @@ Currently selected block is printed in terminal
 
 # Building on RPM based linux
 
-Install Dependancies:
+### Install Dependancies:
 
 sudo dnf install sdl2-devel glm-devel opengl-devel git g++ cmake make
 
-Clone repository:
+### Clone repository:
 
 git clone ...
 
 cd VoxelVeiwer
 
-Building:
+#### Building:
 
 mkdir build
 
@@ -55,6 +55,6 @@ mkdir shaders
 cp ../src/shaders/*.glsl shaders/
 
 
-Run:
+### Run:
 
 ./VoxelVeiwer
