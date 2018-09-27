@@ -32,29 +32,29 @@ Currently selected block is printed in terminal
 
 ### Install Dependancies:
 
-sudo dnf install sdl2-devel glm-devel opengl-devel git g++ cmake make
+1. `sudo dnf install sdl2-devel glm-devel opengl-devel git g++ cmake make`
 
 ### Clone repository:
 
-git clone ...
+1. `git clone ...`
 
-cd VoxelVeiwer
+2. `cd VoxelVeiwer`
 
 #### Building:
 
-mkdir build
+1. `mkdir build`
 
-cd build
+2. `cd build`
 
-cmake ..
+3. `cmake ..`
 
-make -j4
+4. `make -j4`
 
-mkdir shaders
+5. `mkdir shaders`
 
-cp ../src/shaders/*.glsl shaders/
+6. `cp ../src/shaders/*.glsl shaders/`
 
 
 ### Run:
 
-./VoxelVeiwer
+1. `./VoxelVeiwer`
