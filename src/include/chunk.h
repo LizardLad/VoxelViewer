@@ -158,10 +158,10 @@ struct chunk {
 	static float noise2d(float x, float y, int seed, int octaves, float persistence) {
 		float sum = 0;
 		float strength = 1.0;
-		float scale = 1.0;
+		float scale = 0.0000000025;
 
 		for(int i = 0; i < octaves; i++) {
-			sum += strength * glm::simplex(glm::vec2(x, y) * scale);
+			sum += strength * glm::simplex(glm::vec2(x, y) * (scale * ((float)seed)));
 			scale *= 2.0;
 			strength *= persistence;
 		}

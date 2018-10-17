@@ -7,6 +7,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <stdio.h>
+
 #include "shader_utils.h"
 #include "superchunk_size.h"
 #include "chunk.h"

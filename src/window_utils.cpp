@@ -20,7 +20,7 @@ void window_event(SDL_WindowEvent *ev) {
 			break;
 		case SDL_WINDOWEVENT_ENTER:
 			mouse_in_window = true;
-			if(keys & ~64)
+			if(keys | 64)
 			{
 				SDL_SetRelativeMouseMode(SDL_TRUE);
 			}
