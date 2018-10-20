@@ -38,7 +38,7 @@ static struct chunk *chunk_slot[CHUNKSLOTS] = {0};
 class chunk {
 	public:
 		uint8_t blk[CX][CY][CZ];
-		struct chunk *left, *right, *below, *above, *front, *back;
+		chunk *left, *right, *below, *above, *front, *back;
 		int slot;
 		GLuint vbo;
 		int elements;

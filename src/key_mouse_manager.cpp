@@ -7,6 +7,7 @@
 #include "include/global_vars.h"
 #include "include/vectors.h"
 #include "include/resources.h"
+#include "include/save.h"
 
 void key_down(SDL_KeyboardEvent *ev)
 {
@@ -82,6 +83,7 @@ void key_up(SDL_KeyboardEvent *ev)
 		case SDL_SCANCODE_DELETE:
 			if(context_init_finished)
 			{
+				save_world();
 				free_resources();
 				SDL_GL_DeleteContext(context);
 				SDL_DestroyWindow(window);
