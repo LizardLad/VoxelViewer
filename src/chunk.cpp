@@ -15,7 +15,7 @@ chunk **chunk_slot;
 
 chunk::chunk(int x, int y, int z): ax(x), ay(y), az(z) {
 	blk = (uint8_t *)malloc(sizeof(uint8_t) * CX * CY * CZ);
-	memset(blk, 0, sizeof(blk));
+	memset(blk, 0, sizeof(uint8_t) * CX * CY * CZ);
 	left = right = below = above = front = back = 0;
 	lastused = now;
 	slot = 0;
@@ -113,8 +113,7 @@ void chunk::set(int x, int y, int z, uint8_t type) {
 float chunk::noise2d(float x, float y, int seed, int octaves, float persistence) {
 	float sum = 0;
 	float strength = 1.0;
-	//float scale = 0.0000000025;
-	float scale = 1.0L;
+	float scale = 0.0000000025;
 
 	for(int i = 0; i < octaves; i++) {
 		sum += strength * glm::simplex(glm::vec2(x, y) * (scale * ((float)seed)));
@@ -129,7 +128,7 @@ float chunk::noise3d_abs(float x, float y, float z, int seed, int octaves, float
 	float sum = 0;
 	float strength = 1.0;
 	//float scale = 0.0000000025;
-	float scale = 1.0;
+	float scale = 0.0L;
 
 	for(int i = 0; i < octaves; i++) {
 		sum += strength * fabs(glm::simplex(glm::vec3(x, y, z) * (scale * ((float)seed))));

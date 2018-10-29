@@ -20,7 +20,7 @@ int init_resources()
 {
 	/* Seed random number generator */
 	srand(time(NULL));
-
+	
 	/* Create shaders */
 
 	program = create_program("shader/vertex.glsl", "shader/fragment.glsl");

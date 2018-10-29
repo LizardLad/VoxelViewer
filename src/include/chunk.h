@@ -38,7 +38,7 @@ struct byte4 {
 static const int transparent[16] = {2, 0, 0, 0, 1, 0, 0, 0, 3, 4, 0, 0, 0, 0, 0, 0}; 
 static const char *blocknames[16] = {
 	"air", "dirt", "topsoil", "grass", "leaves", "wood", "stone", "sand",
-	"water", "glass", "brick", "ore", "woodrings", "white", "black", "x-y"
+	"water", "glass", "brick", "ore", "woodrings", "rainbow", "black", "x-y"
 };
 
 class chunk {
