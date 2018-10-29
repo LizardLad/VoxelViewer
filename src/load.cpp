@@ -15,6 +15,12 @@ int get_world_dimentions_from_file(int32_t *SCX, int32_t *SCY, int32_t *SCZ, int
 	if(!voxel_world_save_file)
 	{
 		printf("[ERROR] Unable to open file to read!\n[ERROR] Error occured trying to read world dimentions from file!\n");
+		*SCX = 32;
+		*SCY = 2;
+		*SCZ = 32;
+		*CX = 16;
+		*CY = 32;
+		*CZ = 16;
 		return 1;
 	}
 

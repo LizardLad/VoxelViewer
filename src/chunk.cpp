@@ -113,7 +113,8 @@ void chunk::set(int x, int y, int z, uint8_t type) {
 float chunk::noise2d(float x, float y, int seed, int octaves, float persistence) {
 	float sum = 0;
 	float strength = 1.0;
-	float scale = 0.0000000025;
+	//float scale = 0.0000000025;
+	float scale = 1.0L;
 
 	for(int i = 0; i < octaves; i++) {
 		sum += strength * glm::simplex(glm::vec2(x, y) * (scale * ((float)seed)));
@@ -127,7 +128,8 @@ float chunk::noise2d(float x, float y, int seed, int octaves, float persistence)
 float chunk::noise3d_abs(float x, float y, float z, int seed, int octaves, float persistence) {
 	float sum = 0;
 	float strength = 1.0;
-	float scale = 0.0000000025;
+	//float scale = 0.0000000025;
+	float scale = 1.0;
 
 	for(int i = 0; i < octaves; i++) {
 		sum += strength * fabs(glm::simplex(glm::vec3(x, y, z) * (scale * ((float)seed))));
