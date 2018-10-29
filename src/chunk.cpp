@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include <SDL_opengles2.h>
 
 #include <glm/glm.hpp>
@@ -8,8 +10,12 @@
 #include "include/superchunk_size.h"
 #include "include/global_vars.h"
 
+//chunk *chunk_slot[CHUNKSLOTS] = {0};
+chunk **chunk_slot; 
+
 chunk::chunk(int x, int y, int z): ax(x), ay(y), az(z) {
-	memset(blk, 0, sizeof blk);
+	blk = (uint8_t *)malloc(sizeof(uint8_t) * CX * CY * CZ);
+	memset(blk, 0, sizeof(blk));
 	left = right = below = above = front = back = 0;
 	lastused = now;
 	slot = 0;
@@ -20,23 +26,23 @@ chunk::chunk(int x, int y, int z): ax(x), ay(y), az(z) {
 
 uint8_t chunk::get(int x, int y, int z) {
 	if(x < 0)
-		return left ? left->blk[x + CX][y][z] : 0;
+		return left ? left->get_blk_entry(x + CX, y, z) : 0;
 	if(x >= CX)
-		return right ? right->blk[x - CX][y][z] : 0;
+		return right ? right->get_blk_entry(x - CX, y, z) : 0;
 	if(y < 0)
-		return below ? below->blk[x][y + CY][z] : 0;
+		return below ? below->get_blk_entry(x, y + CY, z) : 0;
 	if(y >= CY)
-		return above ? above->blk[x][y - CY][z] : 0;
+		return above ? above->get_blk_entry(x, y - CY, z) : 0;
 	if(z < 0)
-		return front ? front->blk[x][y][z + CZ] : 0;
+		return front ? front->get_blk_entry(x, y, z + CZ) : 0;
 	if(z >= CZ)
-		return back ? back->blk[x][y][z - CZ] : 0;
-	return blk[x][y][z];
+		return back ? back->get_blk_entry(x, y, z - CZ) : 0;
+	return get_blk_entry(x, y, z);
 }
 
 bool chunk::isblocked(int x1, int y1, int z1, int x2, int y2, int z2) {
 	// Invisible blocks are always "blocked"
-	if(!blk[x1][y1][z1])
+	if(!get_blk_entry(x1, y1, z1))
 		return true;
 	
 	// Leaves do not block any other block, including themselves
@@ -48,7 +54,7 @@ bool chunk::isblocked(int x1, int y1, int z1, int x2, int y2, int z2) {
 		return true;
 
 	// Otherwise, LOS is only blocked by blocks if the same transparency type
-	return transparent[get(x2, y2, z2)] == transparent[blk[x1][y1][z1]];
+	return transparent[get(x2, y2, z2)] == transparent[get_blk_entry(x1, y1, z1)];
 }
 
 void chunk::set(int x, int y, int z, uint8_t type) {
@@ -85,7 +91,7 @@ void chunk::set(int x, int y, int z, uint8_t type) {
 	}
 
 	// Change the block
-	blk[x][y][z] = type;
+	set_blk_entry(x, y, z, type);
 	changed = true;
 
 	// When updating blocks at the edge of this chunk,
@@ -151,7 +157,7 @@ void chunk::noise(int seed) {
 				if(y + ay * CY >= h) {
 					// If we are not yet up to sea level, fill with water blocks
 					if(y + ay * CY < SEALEVEL) {
-						blk[x][y][z] = 8;
+						set_blk_entry(x, y, z, 8);
 						continue;
 					// Otherwise, we are in the air
 					} else {
@@ -181,16 +187,16 @@ void chunk::noise(int seed) {
 
 				// Sand layer
 				if(n + r * 5 < 4)
-					blk[x][y][z] = 7;
+					set(x, y, z, 7);
 				// Dirt layer, but use grass blocks for the top
 				else if(n + r * 5 < 8)
-					blk[x][y][z] = (h < SEALEVEL || y + ay * CY < h - 1) ? 1 : 3;
+					set(x, y, z, ((h < SEALEVEL || y + ay * CY < h - 1) ? 1 : 3));
 				// Rock layer
 				else if(r < 1.25)
-					blk[x][y][z] = 6;
+					set(x, y, z, 6);
 				// Sometimes, ores!
 				else
-					blk[x][y][z] = 11;
+					set(x, y, z, 11);
 			}
 		}
 	}
@@ -213,9 +219,9 @@ void chunk::update() {
 					continue;
 				}
 
-				uint8_t top = blk[x][y][z];
-				uint8_t bottom = blk[x][y][z];
-				uint8_t side = blk[x][y][z];
+				uint8_t top = get_blk_entry(x, y, z);
+				uint8_t bottom = get_blk_entry(x, y, z);
+				uint8_t side = get_blk_entry(x, y, z);
 
 				// Grass block has dirt sides and bottom
 				if(top == 3) {
@@ -227,13 +233,16 @@ void chunk::update() {
 				}
 
 				// Same block as previous one? Extend it.
-				if(vis && z != 0 && blk[x][y][z] == blk[x][y][z - 1]) {
+				if(vis && z != 0 && get_blk_entry(x, y, z) == get_blk_entry(x, y, z - 1))
+				{
 					vertex[i - 5] = byte4(x, y, z + 1, side);
 					vertex[i - 2] = byte4(x, y, z + 1, side);
 					vertex[i - 1] = byte4(x, y + 1, z + 1, side);
 					merged++;
 				// Otherwise, add a new quad.
-				} else {
+				}
+				else
+				{
 					vertex[i++] = byte4(x, y, z, side);
 					vertex[i++] = byte4(x, y, z + 1, side);
 					vertex[i++] = byte4(x, y + 1, z, side);
@@ -256,9 +265,9 @@ void chunk::update() {
 					continue;
 				}
 
-				uint8_t top = blk[x][y][z];
-				uint8_t bottom = blk[x][y][z];
-				uint8_t side = blk[x][y][z];
+				uint8_t top = get_blk_entry(x, y, z);
+				uint8_t bottom = get_blk_entry(x, y, z);
+				uint8_t side = get_blk_entry(x, y, z);
 
 				if(top == 3) {
 					bottom = 1;
@@ -267,7 +276,7 @@ void chunk::update() {
 					top = bottom = 12;
 				}
 
-				if(vis && z != 0 && blk[x][y][z] == blk[x][y][z - 1]) {
+				if(vis && z != 0 && get_blk_entry(x, y, z) == get_blk_entry(x, y, z - 1)) {
 					vertex[i - 4] = byte4(x + 1, y, z + 1, side);
 					vertex[i - 2] = byte4(x + 1, y + 1, z + 1, side);
 					vertex[i - 1] = byte4(x + 1, y, z + 1, side);
@@ -294,8 +303,8 @@ void chunk::update() {
 					continue;
 				}
 
-				uint8_t top = blk[x][y][z];
-				uint8_t bottom = blk[x][y][z];
+				uint8_t top = get_blk_entry(x, y, z);
+				uint8_t bottom = get_blk_entry(x, y, z);
 
 				if(top == 3) {
 					bottom = 1;
@@ -303,7 +312,7 @@ void chunk::update() {
 					top = bottom = 12;
 				}
 
-				if(vis && z != 0 && blk[x][y][z] == blk[x][y][z - 1]) {
+				if(vis && z != 0 && get_blk_entry(x, y, z) == get_blk_entry(x, y, z - 1)) {
 					vertex[i - 4] = byte4(x, y, z + 1, bottom + 128);
 					vertex[i - 2] = byte4(x + 1, y, z + 1, bottom + 128);
 					vertex[i - 1] = byte4(x, y, z + 1, bottom + 128);
@@ -330,8 +339,8 @@ void chunk::update() {
 					continue;
 				}
 
-				uint8_t top = blk[x][y][z];
-				uint8_t bottom = blk[x][y][z];
+				uint8_t top = get_blk_entry(x, y, z);
+				uint8_t bottom = get_blk_entry(x, y, z);
 
 				if(top == 3) {
 					bottom = 1;
@@ -339,7 +348,7 @@ void chunk::update() {
 					top = bottom = 12;
 				}
 
-				if(vis && z != 0 && blk[x][y][z] == blk[x][y][z - 1]) {
+				if(vis && z != 0 && get_blk_entry(x, y, z) == get_blk_entry(x, y, z - 1)) {
 					vertex[i - 5] = byte4(x, y + 1, z + 1, top + 128);
 					vertex[i - 2] = byte4(x, y + 1, z + 1, top + 128);
 					vertex[i - 1] = byte4(x + 1, y + 1, z + 1, top + 128);
@@ -366,9 +375,9 @@ void chunk::update() {
 					continue;
 				}
 
-				uint8_t top = blk[x][y][z];
-				uint8_t bottom = blk[x][y][z];
-				uint8_t side = blk[x][y][z];
+				uint8_t top = get_blk_entry(x, y, z);
+				uint8_t bottom = get_blk_entry(x, y, z);
+				uint8_t side = get_blk_entry(x, y, z);
 
 				if(top == 3) {
 					bottom = 1;
@@ -377,7 +386,7 @@ void chunk::update() {
 					top = bottom = 12;
 				}
 
-				if(vis && y != 0 && blk[x][y][z] == blk[x][y - 1][z]) {
+				if(vis && y != 0 && get_blk_entry(x, y, z) == get_blk_entry(x, y - 1, z)) {
 					vertex[i - 5] = byte4(x, y + 1, z, side);
 					vertex[i - 3] = byte4(x, y + 1, z, side);
 					vertex[i - 2] = byte4(x + 1, y + 1, z, side);
@@ -404,9 +413,9 @@ void chunk::update() {
 					continue;
 				}
 
-				uint8_t top = blk[x][y][z];
-				uint8_t bottom = blk[x][y][z];
-				uint8_t side = blk[x][y][z];
+				uint8_t top = get_blk_entry(x, y, z);
+				uint8_t bottom = get_blk_entry(x, y, z);
+				uint8_t side = get_blk_entry(x, y, z);
 
 				if(top == 3) {
 					bottom = 1;
@@ -415,7 +424,7 @@ void chunk::update() {
 					top = bottom = 12;
 				}
 
-				if(vis && y != 0 && blk[x][y][z] == blk[x][y - 1][z]) {
+				if(vis && y != 0 && get_blk_entry(x, y, z) == get_blk_entry(x, y - 1, z)) {
 					vertex[i - 4] = byte4(x, y + 1, z + 1, side);
 					vertex[i - 3] = byte4(x, y + 1, z + 1, side);
 					vertex[i - 1] = byte4(x + 1, y + 1, z + 1, side);
@@ -486,3 +495,15 @@ void chunk::render() {
 	glVertexAttribPointer(attribute_coord, 4, GL_BYTE, GL_FALSE, 0, 0);
 	glDrawArrays(GL_TRIANGLES, 0, elements);
 }
+
+inline uint8_t chunk::get_blk_entry(int x, int y, int z)
+{
+	return blk[(x) + (CX * y) + (z * CX * CY)];
+}
+
+inline void chunk::set_blk_entry(int x, int y, int z, uint8_t type)
+{
+	blk[(x) + (CX * y) + (z * CX * CY)] = type;
+}
+
+

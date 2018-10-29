@@ -1,4 +1,5 @@
 #include <time.h>
+#include <stdlib.h>
 
 #include <SDL.h>
 #include <SDL_opengles2.h>
@@ -10,6 +11,10 @@
 #include "include/textures.h"
 #include "include/superchunk.h"
 #include "include/vectors.h"
+#include "include/load.h"
+#include "include/chunk.h"
+int32_t CHUNKSLOTS = 0;
+int32_t SCX = 0, SCY = 0, SCZ = 0, CX = 0, CY = 0, CZ = 0;
 
 int init_resources()
 {
@@ -37,10 +42,20 @@ int init_resources()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textures.width, textures.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textures.pixel_data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
+	//From file get dimentions
+	get_world_dimentions_from_file(&SCX, &SCY, &SCZ, &CX, &CY, &CZ, "world.bin");
+
+	CHUNKSLOTS = SCX * SCY * SCZ;
+
+	chunk_slot = (chunk **)malloc(sizeof(chunk *) * CHUNKSLOTS);
+	memset((void *)chunk_slot, 0, sizeof(chunk *) * CHUNKSLOTS);
+
 	/* Create the world */
 
 	world = new superchunk;
 
+	load_world();
+	
 	position = glm::vec3(0, CY + 1, 0);
 	angle = glm::vec3(0, -0.5, 0);
 	update_vectors();
@@ -68,5 +83,6 @@ int init_resources()
 
 void free_resources()
 {
+	free(chunk_slot);
 	glDeleteProgram(program);
 }

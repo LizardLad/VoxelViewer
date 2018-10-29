@@ -11,15 +11,23 @@
 #include "global_vars.h"
 
 // Size of one chunk in blocks
-#define CX 16
-#define CY 32
-#define CZ 16
+//int32_t CX = 16;
+//int32_t CY = 32;
+//int32_t CZ = 16;
+//#define CX 16
+//#define CY 32
+//#define CZ 16
+
+extern int32_t CX;
+extern int32_t CY;
+extern int32_t CZ;
 
 // Sea level
 #define SEALEVEL 4
 
 // Number of VBO slots for chunks
-#define CHUNKSLOTS (SCX * SCY * SCZ)
+//#define CHUNKSLOTS (SCX * SCY * SCZ)
+extern int32_t CHUNKSLOTS;
 
 struct byte4 {
 	uint8_t x, y, z, w;
@@ -33,11 +41,9 @@ static const char *blocknames[16] = {
 	"water", "glass", "brick", "ore", "woodrings", "white", "black", "x-y"
 };
 
-static struct chunk *chunk_slot[CHUNKSLOTS] = {0};
-
 class chunk {
 	public:
-		uint8_t blk[CX][CY][CZ];
+		uint8_t *blk; 
 		chunk *left, *right, *below, *above, *front, *back;
 		int slot;
 		GLuint vbo;
@@ -62,6 +68,11 @@ class chunk {
 		float noise3d_abs(float x, float y, float z, int seed, int octaves, float persistence);
 		float noise2d(float x, float y, int seed, int octaves, float persistence);
 		bool isblocked(int x1, int y1, int z1, int x2, int y2, int z2);
+		uint8_t get_blk_entry(int x, int y, int z);
+		void set_blk_entry(int x, int y, int z, uint8_t type);
 };
+
+//chunk *chunk_slot[CHUNKSLOTS] = {0};
+extern chunk **chunk_slot; 
 
 #endif

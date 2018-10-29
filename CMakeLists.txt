@@ -11,5 +11,6 @@ find_package(glm REQUIRED)
 
 # Define executable target
 include_directories(${SDL2_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR} ${CMAKE_BINARY_DIR})
-add_executable(VoxelViewer src/main.cpp src/key_mouse_manager.cpp src/physics.cpp src/render.cpp src/shader_utils.cpp src/vectors.cpp src/window_utils.cpp src/resources.cpp src/chunk.cpp src/superchunk.cpp src/save.cpp)
+add_executable(VoxelViewer src/main.cpp src/key_mouse_manager.cpp src/physics.cpp src/render.cpp src/shader_utils.cpp src/vectors.cpp src/window_utils.cpp src/resources.cpp src/chunk.cpp src/superchunk.cpp src/save.cpp src/load.cpp)
 target_link_libraries(VoxelViewer ${SDL2_LIBRARIES} ${OPENGL_LIBRARIES} ${GLM_LIBRARIES} m)
+target_compile_options(VoxelViewer PUBLIC "-g")#-Wall")
